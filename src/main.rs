@@ -1,0 +1,49 @@
+#![allow(unused)]
+
+use std::env;
+use std::fs;
+use std::str::FromStr;
+
+fn main() {
+
+    let contents = fs::read_to_string("./data/input.txt")
+        .expect("Couldn't read the file");
+
+    let arr = contents.split("\n\n");
+    let mut elves = Vec::new();
+
+    let mut idx = 0;
+    for x in arr {
+        let elf = Elf {
+            index: idx,
+            total_calories: calorie_sum(x),
+        };
+        elves.push(elf);
+        idx += 1;
+    }
+
+    let mut highest = 0;
+
+    for elf in elves {
+        if elf.total_calories > highest {
+            highest = elf.total_calories;
+        }
+    }
+
+    println!("{}", highest);
+}
+
+#[derive(Debug)]
+struct Elf {
+    index: i32,
+    total_calories: i32,
+}
+
+fn calorie_sum(calories: &str) -> i32 {
+    let cal_arr = calories.split("\n");
+    let mut total = 0;
+    for cal in cal_arr {
+        total += i32::from_str(cal).unwrap();
+    }
+    total
+}

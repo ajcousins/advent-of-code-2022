@@ -1,6 +1,3 @@
-#![allow(unused)]
-
-use std::env;
 use std::fs;
 use std::str::FromStr;
 
@@ -12,14 +9,11 @@ fn main() {
     let arr = contents.split("\n\n");
     let mut elves = Vec::new();
 
-    let mut idx = 0;
     for x in arr {
         let elf = Elf {
-            index: idx,
             total_calories: calorie_sum(x),
         };
         elves.push(elf);
-        idx += 1;
     }
 
     let mut highest = 0;
@@ -35,7 +29,6 @@ fn main() {
 
 #[derive(Debug)]
 struct Elf {
-    index: i32,
     total_calories: i32,
 }
 

@@ -10,26 +10,13 @@ fn main() {
     let mut elves = Vec::new();
 
     for x in arr {
-        let elf = Elf {
-            total_calories: calorie_sum(x),
-        };
-        elves.push(elf);
+        elves.push(calorie_sum(x));
     }
 
-    let mut highest = 0;
+    elves.sort();
+    elves.reverse();
 
-    for elf in elves {
-        if elf.total_calories > highest {
-            highest = elf.total_calories;
-        }
-    }
-
-    println!("{}", highest);
-}
-
-#[derive(Debug)]
-struct Elf {
-    total_calories: i32,
+    println!("{:?}", elves[0] + elves[1] + elves[2]);
 }
 
 fn calorie_sum(calories: &str) -> i32 {

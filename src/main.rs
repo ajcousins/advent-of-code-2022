@@ -8,33 +8,47 @@ fn main() {
 }
 
 fn game_to_points(game:&String) -> u32 {
-    let equiv = HashMap::from([
-        ("A", "X"),
-        ("B", "Y"),
-        ("C", "Z"),
+    let lose = HashMap::from([
+        ("A", "B"),
+        ("B", "C"),
+        ("C", "A"),
     ]);
 
-    let beats = HashMap::from([
-        ("A", "Z"),
-        ("B", "X"),
-        ("C", "Y"),
+    let win = HashMap::from([
+        ("A", "C"),
+        ("B", "A"),
+        ("C", "B"),
+    ]);
+
+    let game_points = HashMap::from([
+        ("X", 0),
+        ("Y", 3),
+        ("Z", 6),
     ]);
 
     let home_value = HashMap::from([
-        ("X", 1),
-        ("Y", 2),
-        ("Z", 3),
+        ("A", 1),
+        ("B", 2),
+        ("C", 3),
     ]);
 
     let symbols: Vec<&str> = game.split(" ").collect();
-    let bonus = home_value[symbols[1]];
+    let mut score = 0;
 
-    if beats[symbols[0]] == symbols[1] {
-        return 0 + bonus;
-    } 
-    else if equiv[symbols[0]] == symbols[1] {
-        return 3 + bonus;
+    match symbols[1] {
+        "X" => {
+            score = home_value[win[symbols[0]]];
+        }
+        "Y" => {
+            score = home_value[symbols[0]];
+        }
+        "Z" => {
+            score = home_value[lose[symbols[0]]];
+        }
+        _ => {
+            ()
+        }
     }
-    6 + bonus
 
+    score + game_points[symbols[1]]
 }

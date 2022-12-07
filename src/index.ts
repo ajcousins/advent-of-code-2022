@@ -6,10 +6,8 @@ const isContained = (pair: string[]): boolean => {
   const [a, b] = pair;
   const aArr = a.split('-');
   const bArr = b.split('-');
-  return (
-    (+aArr[0] >= +bArr[0] && +aArr[1] <= +bArr[1]) ||
-    (+bArr[0] >= +aArr[0] && +bArr[1] <= +aArr[1])
-  );
+  const result = (+aArr[1] < +bArr[0] || +aArr[0] > +bArr[1])
+  return !result
 };
 
 const puzzle = (input: string[]) =>

@@ -1,28 +1,23 @@
 import fs from 'fs';
 const input = fs.readFileSync('input.txt', 'utf-8').split('\n');
-const value = (char) => char.charCodeAt(0) < 97 ? char.charCodeAt(0) - 38 : char.charCodeAt(0) - 96;
-const removeDups = (ref, check) => {
-    const common = [...ref];
-    let i = 0;
-    while (i < common.length) {
-        if (check.indexOf(common[i]) === -1) {
-            common.splice(i, 1);
-            continue;
-        }
-        i++;
-    }
-    return common;
+const isContained = (pair) => {
+    const [a, b] = pair;
+    // console.log("a:", a, "b:", b);
+    const aArr = a.split('-');
+    const bArr = b.split('-');
+    // console.log("aArr[0]", aArr[0]);
+    // console.log("aArr[1]", aArr[1]);
+    // console.log("bArr[0]", bArr[0]);
+    // console.log("bArr[1]", bArr[1]);
+    // console.log("bArr[0] >= aArr[0]:", +bArr[0] >= +aArr[0]);
+    // console.log("eval:", (aArr[0] >= bArr[0] && aArr[1] <= bArr[1]) ||
+    // (bArr[0] >= aArr[0] && bArr[1] <= aArr[1]));
+    return ((+aArr[0] >= +bArr[0] && +aArr[1] <= +bArr[1]) ||
+        (+bArr[0] >= +aArr[0] && +bArr[1] <= +aArr[1]));
 };
-const partTwo = (input) => {
-    const chars = [];
-    let cursor = 0;
-    while (cursor < input.length) {
-        const chunk = input.slice(cursor, cursor + 3);
-        const common = chunk[0].split("");
-        chars.push(removeDups(removeDups(common, chunk[1]), chunk[2])[0]);
-        cursor += 3;
-    }
-    return chars.reduce((acc, char) => acc + value(char), 0);
-};
-console.log(partTwo(input));
+const puzzle = (input) => input
+    .map((pair) => pair.split(','))
+    .map(isContained)
+    .reduce((acc, bool) => (bool ? acc + 1 : acc), 0);
+console.log(puzzle(input));
 //# sourceMappingURL=index.js.map

@@ -2,32 +2,20 @@ import fs from 'fs';
 
 const input = fs.readFileSync('input.txt', 'utf-8').split('\n');
 
-const value = (char: string): number =>
-  char.charCodeAt(0) < 97 ? char.charCodeAt(0) - 38 : char.charCodeAt(0) - 96;
+const isContained = (pair: string[]): boolean => {
+  const [a, b] = pair;
+  const aArr = a.split('-');
+  const bArr = b.split('-');
+  return (
+    (+aArr[0] >= +bArr[0] && +aArr[1] <= +bArr[1]) ||
+    (+bArr[0] >= +aArr[0] && +bArr[1] <= +aArr[1])
+  );
+};
 
-const removeDups = (ref: string[], check: string): string[] => {
-  const common = [...ref];
-  let i = 0;
-  while (i < common.length) {
-    if (check.indexOf(common[i]) === -1) {
-      common.splice(i, 1);
-      continue;
-    }
-    i++;
-  }
-  return common;
-}
+const puzzle = (input: string[]) =>
+  input
+    .map((pair) => pair.split(','))
+    .map(isContained)
+    .reduce((acc, bool) => (bool ? acc + 1 : acc), 0);
 
-const partTwo = (input: string[]) => {
-  const chars = [];
-  let cursor = 0;
-  while (cursor < input.length) {
-    const chunk = input.slice(cursor, cursor + 3);
-    const common = chunk[0].split("");
-    chars.push(removeDups(removeDups(common, chunk[1]), chunk[2])[0]);
-    cursor += 3;
-  }
-  return chars.reduce((acc, char) => acc + value(char), 0)
-}
-
-console.log(partTwo(input));
+console.log(puzzle(input));

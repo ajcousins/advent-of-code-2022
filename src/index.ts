@@ -26,10 +26,10 @@ const parseStart = (start: string) => {
   return obj;
 };
 
-const mutateBoard = (curBoard: Board, from: string, to: string): Board => {
+const mutateBoard = (curBoard: Board, from: string, to: string, qty: number): Board => {
   let board = { ...curBoard };
-  let box = board[from].shift();
-  board[to].unshift(box);
+  let group = board[from].splice(0, qty);
+  board[to] = [...group, ...board[to]];
   return board;
 };
 
@@ -39,11 +39,7 @@ const puzzle = (input: string) => {
   const end = moves.split('\n').reduce((acc, move) => {
     let curBoard = { ...acc };
     const cmds = move.split(' ');
-    let freq = +cmds[1];
-    while (freq > 0) {
-      curBoard = mutateBoard(curBoard, cmds[3], cmds[5]);
-      freq--;
-    }
+      curBoard = mutateBoard(curBoard, cmds[3], cmds[5], +cmds[1]);
     return curBoard;
   }, board);
   return Object.values(end).reduce((acc, val) => acc + val[0], '');

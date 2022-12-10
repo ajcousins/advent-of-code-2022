@@ -1,37 +1,39 @@
 import fs from 'fs';
 const input = fs.readFileSync('input.txt', 'utf-8').split('\n');
-const isOnEdge = (grid, x, y) => x === 0 || x === grid[0].length - 1 || y === 0 || y === grid.length - 1;
-const iterateGrid = (grid, xSt, vert) => {
-    const gridCopy = [...grid];
-    for (let y = 0; y < gridCopy.length; y++) {
-        let highest = 0;
-        for (let x = xSt; xSt ? x >= 0 : x < gridCopy[0].length; xSt ? x-- : x++) {
-            const i = vert ? y : x;
-            const j = vert ? x : y;
-            if (isOnEdge(gridCopy, i, j)) {
-                gridCopy[j][i].isVisible = true;
+const isOutside = (grid, x, y) => x === -1 || x === grid[0].length || y === -1 || y === grid.length;
+const checkViews = (grid, y, x) => {
+    const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    const scores = [];
+    dirs.forEach((dir) => {
+        let origin = { y, x };
+        let dirScore = 0;
+        while (true) {
+            origin.y = origin.y + dir[0];
+            origin.x = origin.x + dir[1];
+            if (isOutside(grid, origin.x, origin.y))
+                break;
+            if (grid[y][x].height <= grid[origin.y][origin.x].height) {
+                dirScore++;
+                break;
             }
-            if (gridCopy[j][i].height > highest) {
-                gridCopy[j][i].isVisible = true;
-                highest = gridCopy[j][i].height;
-            }
+            dirScore++;
         }
-    }
+        scores.push(dirScore);
+    });
+    const gridCopy = [...grid];
+    gridCopy[y][x].score = scores.reduce((acc, val) => acc * val, 1);
     return gridCopy;
 };
 const puzzle = (input) => {
-    let grid = input.map((row) => row
-        .split('')
-        .map((cell) => ({ height: Number(cell), isVisible: false })));
-    grid = iterateGrid(grid, 0);
-    grid = iterateGrid(grid, grid[0].length - 1);
-    grid = iterateGrid(grid, 0, true);
-    grid = iterateGrid(grid, grid[0].length - 1, true);
+    let grid = input.map((row) => row.split('').map((cell) => ({ height: Number(cell), score: 0 })));
+    for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid[0].length; j++) {
+            grid = checkViews(grid, i, j);
+        }
+    }
     return grid
-        .map((row) => row.map((cell) => (cell.isVisible ? 'O' : 'X')).join(''))
-        .join('')
-        .split('')
-        .reduce((acc, val) => (val === 'O' ? acc + 1 : acc), 0);
+        .map((row) => row.reduce((acc, tree) => (tree.score > acc ? tree.score : acc), 0))
+        .reduce((acc, val) => (val > acc ? val : acc), 0);
 };
 console.log(puzzle(input));
 //# sourceMappingURL=index.js.map

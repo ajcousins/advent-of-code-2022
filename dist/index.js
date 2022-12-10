@@ -61,11 +61,17 @@ const puzzle = (input) => {
         }
         cursor++;
     }
-    folderSizes(fileStruct);
+    const totalUsedSpace = folderSizes(fileStruct).folderSize;
+    return totalUsedSpace;
 };
-puzzle(input);
-const answer = results
-    .filter((log) => log.size <= 100000)
-    .reduce((acc, val) => acc + val.size, 0);
-console.log('answer:', answer);
+const totalUsed = puzzle(input);
+const diff = results
+    .map((result) => ({
+    ...result,
+    resultingUnusedSpace: 70000000 - totalUsed + result.size,
+}))
+    .filter((result) => result.resultingUnusedSpace >= 30000000)
+    .sort((a, b) => (a.resultingUnusedSpace > b.resultingUnusedSpace ? 1 : -1));
+console.log('diff:', diff);
+console.log('answer:', diff[0]);
 //# sourceMappingURL=index.js.map

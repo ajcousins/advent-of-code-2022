@@ -2,103 +2,51 @@ import fs from 'fs';
 
 const input = fs.readFileSync('input.txt', 'utf-8').split('\n');
 
-interface Folder {
-  name: string;
-  parent: Folder;
-  contents: (Folder | File)[];
-  folderSize: number;
+interface Tree {
+  height: number;
+  isVisible: boolean;
 }
 
-interface File {
-  name: string;
-  filesize: number;
-}
+type Grid = Tree[][];
 
-class Folder {
-  constructor(name: string, parent: Folder | null) {
-    this.name = name;
-    this.parent = parent;
-    this.contents = [];
-    this.folderSize = 0;
-  }
-}
+const isOnEdge = (grid: Grid, x: number, y: number): boolean =>
+  x === 0 || x === grid[0].length - 1 || y === 0 || y === grid.length - 1;
 
-class File {
-  constructor(name: string, filesize: number) {
-    this.name = name;
-    this.filesize = filesize;
-  }
-}
-interface Log {
-  name: string;
-  size: number;
-}
-
-const results: Log[] = [];
-
-const folderSizes = (struct: Folder): Folder => {
-  const structCopy = { ...struct };
-  let contentsSum = 0;
-  structCopy.contents.forEach((child, i) => {
-    if (child['folderSize'] === 0) {
-      const childFolder = folderSizes(child as Folder);
-      results.push({ name: childFolder.name, size: childFolder.folderSize });
-      contentsSum += childFolder.folderSize;
-    } else {
-      contentsSum += (child as File).filesize;
+const iterateGrid = (grid: Grid, xSt: number, vert?: boolean): Grid => {
+  const gridCopy = [...grid];
+  for (let y = 0; y < gridCopy.length; y++) {
+    let highest = 0;
+    for (let x = xSt; xSt ? x >= 0 : x < gridCopy[0].length; xSt ? x-- : x++) {
+      const i = vert ? y : x;
+      const j = vert ? x : y;
+      if (isOnEdge(gridCopy, i, j)) {
+        gridCopy[j][i].isVisible = true;
+      }
+      if (gridCopy[j][i].height > highest) {
+        gridCopy[j][i].isVisible = true;
+        highest = gridCopy[j][i].height;
+      }
     }
-  });
-  return { ...structCopy, folderSize: contentsSum };
+  }
+  return gridCopy;
 };
 
 const puzzle = (input: string[]) => {
-  const fileStruct = new Folder('/', null);
-  let curRef: Folder = fileStruct;
-  let cursor = 0;
-  while (cursor < input.length) {
-    if (input[cursor] === '$ cd /') {
-      curRef = fileStruct;
-    } else if (input[cursor] === '$ cd ..') {
-      curRef = curRef.parent;
-    } else if (input[cursor].includes('$ cd ')) {
-      const targetFilename = input[cursor].slice(5);
-      const contents = curRef.contents;
-      const idx = contents.findIndex(
-        (item: File | Folder) => item.name === targetFilename
-      );
-
-      if (idx > -1) {
-        curRef = curRef.contents[idx] as Folder;
-      }
-    }
-
-    if (input[cursor].slice(0, 4) === 'dir ') {
-      const folderName = input[cursor].slice(4);
-      const newFolder = new Folder(folderName, curRef);
-      curRef.contents.push(newFolder);
-    }
-
-    if (!isNaN(+input[cursor].slice(0, 1))) {
-      const [size, name] = input[cursor].split(' ');
-      const newFile = new File(name, Number(size));
-      curRef.contents.push(newFile);
-    }
-
-    cursor++;
-  }
-
-  const totalUsedSpace = folderSizes(fileStruct).folderSize;
-  return totalUsedSpace;
+  let grid = input.map((row) =>
+    row
+      .split('')
+      .map((cell) => ({ height: Number(cell), isVisible: false } as Tree))
+  );
+  grid = iterateGrid(grid, 0);
+  grid = iterateGrid(grid, grid[0].length - 1);
+  grid = iterateGrid(grid, 0, true);
+  grid = iterateGrid(grid, grid[0].length - 1, true);
+  
+  return grid
+    .map((row) => row.map((cell) => (cell.isVisible ? 'O' : 'X')).join(''))
+    .join('')
+    .split('')
+    .reduce((acc, val) => (val === 'O' ? acc + 1 : acc), 0);
 };
 
-const totalUsed = puzzle(input);
-const diff = results
-  .map((result) => ({
-    ...result,
-    resultingUnusedSpace: 70000000 - totalUsed + result.size,
-  }))
-  .filter((result) => result.resultingUnusedSpace >= 30000000)
-  .sort((a, b) => (a.resultingUnusedSpace > b.resultingUnusedSpace ? 1 : -1));
-
-console.log('diff:', diff);
-console.log('answer:', diff[0]);
+console.log(puzzle(input));

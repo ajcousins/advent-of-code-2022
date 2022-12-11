@@ -15,7 +15,7 @@ const getFrames = (curHeadPos, dir, magnitude) => {
     }
     return frames;
 };
-const tailFramesMap = (headFrames) => {
+const knotFramesMap = (headFrames) => {
     let curTailPos = { x: 0, y: 0 };
     const frames = headFrames.map((frame, i) => {
         if (i === 0)
@@ -56,9 +56,13 @@ const puzzle = (input) => {
         curHeadPos = positions[positions.length - 1];
         headFrames = headFrames.concat(positions);
     });
-    const tailFrames = tailFramesMap(headFrames);
+    const knots = Array.apply(null, Array(9)).map((x, i) => i);
+    let frames = headFrames;
+    knots.forEach(k => {
+        frames = knotFramesMap(frames);
+    });
     const hash = {};
-    tailFrames.forEach((frame) => {
+    frames.forEach((frame) => {
         const idxString = JSON.stringify(frame);
         if (!hash[idxString]) {
             hash[idxString] = 1;
